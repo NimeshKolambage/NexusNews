@@ -31,3 +31,7 @@ logs/
 
 # OS
 Thumbs.db
+
+package-lock.json
+yarn.lock
+package.json
