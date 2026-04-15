@@ -14,11 +14,26 @@ function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { newsRegion, setNewsRegion, language, setLanguage } = useNews();
 
-  const [theme, setTheme] = useState("light-theme");
+  // Initialize theme from localStorage or system preference
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('nexusnews-theme');
+    if (savedTheme) {
+      return savedTheme;
+    }
+    // Check system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark-theme';
+    }
+    return 'light-theme';
+  });
+
   let category = ["business", "entertainment", "general", "health", "science", "sports", "technology","politics"]
   
+  // Apply theme to body and save to localStorage
   useEffect(() => {
     document.body.className = theme;
+    localStorage.setItem('nexusnews-theme', theme);
+    console.log(`🎨 Theme changed to: ${theme === 'dark-theme' ? '🌙 Dark Mode' : '☀️ Light Mode'}`);
   }, [theme])
 
   useEffect(() => {
@@ -33,13 +48,22 @@ function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      // Check if click is outside the dropdown
+      if (!e.target.closest('.dropdown-li')) {
+        setShowCategoryDropdown(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [])
+  
   function toggleTheme() {
-    if (theme === "light-theme") {
-      setTheme("dark-theme")
-    }
-    else {
-      setTheme("light-theme")
-    }
+    setTheme(theme === "light-theme" ? "dark-theme" : "light-theme");
   }
   return (
     <header className="">
@@ -92,17 +116,20 @@ function Header() {
               </select>
             </li>
           )}
-          <li className="flex items-center"><button className="no-underline font-medium bg-none border-none cursor-pointer p-0" onClick={() => { toggleTheme() }}>
-      
-          <input type="checkbox" className="checkbox" id="checkbox"/>
-             <label htmlFor="checkbox" className="checkbox-label">
-          <i className="fas fa-moon"></i>
-          <i className="fas fa-sun"></i>
-          <span className="ball"></span>
-          </label>
-          
-
-          </button></li>
+          <li className="flex items-center">
+            <input 
+              type="checkbox" 
+              className="checkbox" 
+              id="checkbox"
+              checked={theme === 'dark-theme'}
+              onChange={() => { toggleTheme() }}
+            />
+            <label htmlFor="checkbox" className="checkbox-label">
+              <i className="fas fa-moon"></i>
+              <i className="fas fa-sun"></i>
+              <span className="ball"></span>
+            </label>
+          </li>
         </ul>
         <div className={active ? "ham-burger z-50 ham-open" : "ham-burger z-50"} onClick={() => { setActive(!active) }}>
           <span className="lines line-1"></span>

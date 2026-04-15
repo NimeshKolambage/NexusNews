@@ -139,14 +139,20 @@ nav ul li a {
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 6px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    position: relative;
 }
 
 nav ul li a:hover {
     color: var(--accent) !important;
+    background: var(--secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
 }
 
 /* Region/Language Select Dropdowns */
@@ -165,11 +171,14 @@ nav ul li a:hover {
 
 .region-select:hover {
     border-color: var(--accent);
+    background: var(--secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
 }
 
 .region-select:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 8px rgba(5, 150, 105, 0.2);
+    box-shadow: 0 0 8px rgba(5, 150, 105, 0.2), inset 0 0 0 2px rgba(5, 150, 105, 0.1);
 }
 
 .dark-theme .region-select {
@@ -189,35 +198,53 @@ ul li ul {
     display: none;
     background: var(--primary);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 12px;
     list-style: none;
-    margin-top: 10px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    margin-top: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .show-dropdown {
     visibility: visible;
     opacity: 1;
     display: block;
-    min-width: 250px;
-    padding: 12px 0;
+    min-width: 280px;
+    padding: 8px;
+    transform: translateY(0);
 }
 
 ul li ul li {
-    padding: 10px 20px;
+    padding: 0px;
     width: 100%;
-    margin: 0;
+    margin: 0px;
     border: none;
+    transition: all 0.2s ease;
+    list-style: none;
 }
 
 ul li ul li a {
     gap: 10px;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 14px !important;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    color: var(--txt) !important;
+    text-transform: capitalize;
+    display: flex !important;
+    align-items: center;
+    text-decoration: none;
+    width: 100%;
 }
 
 ul li ul li a:hover {
     color: var(--accent) !important;
-    padding-left: 5px;
+    background: var(--secondary) !important;
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+    border-radius: 8px;
 }
 
 .down-arrow-icon {
@@ -235,7 +262,6 @@ ul li ul li a:hover {
     min-height: auto;
     height: auto;
     max-height: 60vh;
-    overflow-y: auto;
     top: 30px;
 }
 
@@ -300,7 +326,9 @@ ul li ul li a:hover {
 }
 
 .checkbox-label:hover {
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.1);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+    transform: translateY(-2px);
+    border-color: var(--accent);
 }
 
 .fa-moon { color: #9ca3af; }
