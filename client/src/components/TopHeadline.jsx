@@ -45,9 +45,8 @@ function TopHeadlines() {
         let options = {};
 
         if (newsRegion === 'srilanka') {
-          // Sri Lanka news using Esana API with language parameter
-          const lang = language === 'si' ? 'si' : 'en';
-          url = `https://esana-api.vercel.app/EsanaV3?lang=${lang}`;
+          // Sri Lanka news using new Esena API v3
+          url = `https://esena-news-api-v3.vercel.app/`;
         } else {
           // World news using local backend (with backup API fallback)
           const categoryParam = params.category ? `&category=${params.category}` : "";
@@ -76,30 +75,37 @@ function TopHeadlines() {
         
         // Handle different API response formats
         if (newsRegion === 'srilanka') {
-          // Esana API format - has Posts array with specific structure
-          const esanaData = json.Posts || [];
+          // New Esena API v3 format - articles in news_data.data
+          const esanaData = json.news_data?.data || [];
           if (Array.isArray(esanaData) && esanaData.length > 0) {
-            // Transform Esana format to our unified format
+            // Transform Esena API format to our unified format
             const transformedArticles = esanaData.map(item => {
-              // Get description from content array
+              // Get description from contentSi array
               let description = '';
-              if (Array.isArray(item.content) && item.content.length > 0) {
-                // Use English (data_en) if language is English, otherwise Sinhala (data)
-                description = language === 'en' ? (item.content[0].data_en || item.content[0].data || '') : (item.content[0].data || item.content[0].data_en || '');
+              if (Array.isArray(item.contentSi) && item.contentSi.length > 0) {
+                // Extract text content from content objects
+                description = item.contentSi
+                  .filter(c => c.type === 'text' || !c.type)
+                  .map(c => c.content || c.data || c.text || '')
+                  .join(' ')
+                  .substring(0, 300) || '';
               }
               
+              // When Sinhala is selected, ONLY show Sinhala content (no English fallback)
+              const title = language === 'en' ? (item.titleEn || item.titleSi || '') : item.titleSi || '';
+              
               return {
-                title: language === 'en' ? (item.title_en || item.title || '') : (item.title || item.title_en || ''),
+                title: title,
                 description: description,
                 content: description,
-                image_url: item.thumb || 'https://via.placeholder.com/400x300',
-                urlToImage: item.thumb || 'https://via.placeholder.com/400x300',
+                image_url: item.cover || item.thumb || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5IiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObiBJbWFnZSBBdmFpbGFibGU8L3RleHQ+PC9zdmc+',
+                urlToImage: item.cover || item.thumb || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5IiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObiBJbWFnZSBBdmFpbGFibGU8L3RleHQ+PC9zdmc+',
                 pubDate: item.published,
                 publishedAt: item.published,
-                link: item.link,
-                url: item.link,
-                source_id: 'Esana',
-                source: { name: 'Esana' }
+                link: item.share_url,
+                url: item.share_url,
+                source_id: 'Helakuru Esana',
+                source: { name: 'Helakuru Esana' }
               };
             });
             setTotalResults(transformedArticles.length);
