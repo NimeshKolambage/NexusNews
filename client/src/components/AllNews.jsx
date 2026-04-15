@@ -45,11 +45,56 @@ function AllNews() {
 
   let pageSize = 12;
 
+  // Cache utility functions
+  const getCacheKey = (region) => `nexusnews_cache_${region}`;
+  const getCacheExpiry = (region) => `nexusnews_expiry_${region}`;
+  const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+
+  const isCacheValid = (region) => {
+    const expiry = localStorage.getItem(getCacheExpiry(region));
+    if (!expiry) return false;
+    return parseInt(expiry) > Date.now();
+  };
+
+  const getCache = (region) => {
+    try {
+      const cached = localStorage.getItem(getCacheKey(region));
+      return cached ? JSON.parse(cached) : null;
+    } catch (err) {
+      console.warn("Cache read error:", err);
+      return null;
+    }
+  };
+
+  const setCache = (region, data) => {
+    try {
+      localStorage.setItem(getCacheKey(region), JSON.stringify(data));
+      localStorage.setItem(getCacheExpiry(region), (Date.now() + CACHE_DURATION).toString());
+      console.log(`📦 Cached ${region} news for 1 hour`);
+    } catch (err) {
+      console.warn("Cache write error:", err);
+    }
+  };
+
   useEffect(() => {
     const fetchNews = async () => {
       setIsLoading(true);
       setError(null);
       try {
+        // Check cache only on first page
+        const cacheKey = newsRegion === 'srilanka' ? 'srilanka' : 'world';
+        if (page === 1 && isCacheValid(cacheKey)) {
+          const cachedData = getCache(cacheKey);
+          if (cachedData) {
+            console.log(`✅ Using cached ${cacheKey} news`);
+            setData(cachedData.articles || cachedData);
+            setTotalResults((cachedData.totalResults || cachedData.length));
+            setFeaturedIndex(0);
+            setIsLoading(false);
+            return;
+          }
+        }
+
         let url = '';
         let options = {};
 
@@ -58,17 +103,29 @@ function AllNews() {
           const lang = language === 'si' ? 'si' : 'en';
           url = `https://esana-api.vercel.app/EsanaV3?lang=${lang}`;
         } else {
-          // World all news using existing API
-          url = `https://news-aggregator-dusky.vercel.app/all-news?page=${page}&pageSize=${pageSize}`;
+          // World all news using local backend (with backup API fallback)
+          url = `http://localhost:3000/all-news?page=${page}&pageSize=${pageSize}`;
         }
 
-        console.log("Fetching from:", url); // Debug log
+        console.log("🌐 Fetching fresh data from:", url); // Debug log
         
         const response = await fetch(url, options);
         
         if (!response.ok) {
           const errorText = await response.text();
           console.error("Fetch error response:", response.status, errorText);
+          
+          // Try to use stale cache as fallback
+          const cachedData = getCache(cacheKey);
+          if (cachedData) {
+            console.log(`⚠️  API failed, using stale cache`);
+            setData(cachedData.articles || cachedData);
+            setTotalResults((cachedData.totalResults || cachedData.length));
+            setError("Using cached data - API temporarily unavailable");
+            setIsLoading(false);
+            return;
+          }
+          
           if (response.status === 429) {
             throw new Error("API Rate Limited - Please try again in a few minutes");
           }
@@ -114,6 +171,8 @@ function AllNews() {
             setTotalResults(transformedArticles.length);
             setData(transformedArticles);
             setFeaturedIndex(0);
+            // Cache the data
+            setCache('srilanka', transformedArticles);
           } else {
             setError("No Sri Lanka news found. Try again later.");
           }
@@ -123,6 +182,8 @@ function AllNews() {
             setTotalResults(myJson.data.totalResults);
             setData(myJson.data.articles);
             setFeaturedIndex(0);
+            // Cache the data
+            setCache('world', { articles: myJson.data.articles, totalResults: myJson.data.totalResults });
           } else {
             setError(myJson.message || "An error occurred fetching world news");
           }
