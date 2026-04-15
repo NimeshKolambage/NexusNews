@@ -1,11 +1,15 @@
 import React from "react";
 
+const categories = ["Business", "Entertainment", "General", "Health", "Science", "Sports", "Technology", "Politics"];
+
 function Card(props) {
-  // Extract category from source or use a default
-  const getCategory = () => {
-    const categories = ["Business", "Entertainment", "General", "Health", "Science", "Sports", "Technology", "Politics"];
-    return categories[Math.floor(Math.random() * categories.length)];
+  const getStaticCategory = () => {
+    const titleLength = props.title ? props.title.length : 0;
+    const index = titleLength % categories.length;
+    return categories[index];
   };
+
+  const category = getStaticCategory();
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -15,7 +19,6 @@ function Card(props) {
 
   return (
     <div className="everything-card">
-      {/* Card Image */}
       <div className="card-image-container">
         <img 
           className="everything-card-img" 
@@ -27,18 +30,14 @@ function Card(props) {
         />
       </div>
 
-      {/* Card Content */}
       <div className="card-content">
-        {/* Category Tag */}
-        <span className="card-category">{getCategory()}</span>
+        <span className="card-category">{category}</span>
 
-        {/* Title */}
         <h3 className="title">
           {props.title?.substring(0, 60)}
           {props.title?.length > 60 ? "..." : ""}
         </h3>
 
-        {/* Info Section */}
         <div className="info">
           <div className="source-info">
             <span className="font-semibold text-xs" style={{color: 'var(--txt)'}}>Source:</span>
