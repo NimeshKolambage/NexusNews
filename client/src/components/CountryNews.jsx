@@ -37,7 +37,13 @@ function CountryNews() {
   const pageSize = 12;
 
   // Cache utility functions
-  const getCacheKey = (country) => `nexusnews_country_${country}`;
+  const getCacheKey = (country) => {
+    // Make cache key language-aware for Sri Lanka
+    if (country === 'lk') {
+      return `nexusnews_country_${country}_${language}`;
+    }
+    return `nexusnews_country_${country}`;
+  };
   const getCacheExpiry = (country) => `nexusnews_country_expiry_${country}`;
   const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
@@ -92,13 +98,12 @@ function CountryNews() {
 
         if (params.iso === 'lk') {
           // Sri Lanka: Esana API with 8-second timeout
-          const lang = language === 'si' ? 'si' : 'en';
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 8000);
           
           try {
-            console.log(`🇱🇰 Fetching Sri Lanka news (${lang})...`, new Date().toLocaleTimeString());
-            response = await fetch(`https://esana-api.vercel.app/EsanaV3?lang=${lang}`, 
+            console.log(`🇱🇰 Fetching Sri Lanka news...`, new Date().toLocaleTimeString());
+            response = await fetch(`https://esena-news-api-v3.vercel.app/`, 
               { signal: controller.signal }
             );
             clearTimeout(timeoutId);
@@ -117,14 +122,7 @@ function CountryNews() {
               throw new Error(`HTTP ${response.status}`);
             }
             myJson = await response.json();
-            console.log(`📦 API Response:`, { posts: myJson.Posts?.length, status: myJson.Status });
-            
-            if (myJson.Status?.code === 429) {
-              throw new Error("🕐 Rate Limited - Try again in 10 minutes");
-            }
-            if (!myJson.Status?.success && myJson.Status) {
-              throw new Error(myJson.Status.description);
-            }
+            console.log(`📦 API Response:`, { articles: myJson.news_data?.data?.length || 0 });
           } catch (esanaError) {
             clearTimeout(timeoutId);
             console.error(`❌ Esana error (${esanaError.name}):`, esanaError.message);
@@ -133,26 +131,38 @@ function CountryNews() {
             return;
           }
           
-          // Transform Esana posts
-          const esanaData = myJson.Posts || [];
+          // Transform Esena API posts
+          const esanaData = myJson.news_data?.data || [];
           if (esanaData.length > 0) {
-            const transformedArticles = esanaData.map(item => ({
-              title: language === 'en' ? (item.title_en || item.title || '') : (item.title || item.title_en || ''),
-              description: language === 'en' 
-                ? (item.content?.[0]?.data_en || item.content?.[0]?.data || '') 
-                : (item.content?.[0]?.data || item.content?.[0]?.data_en || ''),
-              content: language === 'en' 
-                ? (item.content?.[0]?.data_en || item.content?.[0]?.data || '') 
-                : (item.content?.[0]?.data || item.content?.[0]?.data_en || ''),
-              image_url: item.thumb || 'https://via.placeholder.com/400x300',
-              urlToImage: item.thumb || 'https://via.placeholder.com/400x300',
-              pubDate: item.published,
-              publishedAt: item.published,
-              link: item.link,
-              url: item.link,
-              source_id: 'Esana',
-              source: { name: 'Esana' }
-            }));
+            const transformedArticles = esanaData.map(item => {
+              // Get description from contentSi array
+              let description = '';
+              if (Array.isArray(item.contentSi) && item.contentSi.length > 0) {
+                // Extract text content from content objects
+                description = item.contentSi
+                  .filter(c => c.type === 'text' || !c.type)
+                  .map(c => c.content || c.data || c.text || '')
+                  .join(' ')
+                  .substring(0, 300) || '';
+              }
+              
+              // When Sinhala is selected, ONLY show Sinhala content (no English fallback)
+              const title = language === 'en' ? (item.titleEn || item.titleSi || '') : item.titleSi || '';
+              
+              return {
+                title: title,
+                description: description,
+                content: description,
+                image_url: item.cover || item.thumb || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5IiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObiBJbWFnZSBBdmFpbGFibGU8L3RleHQ+PC9zdmc+',
+                urlToImage: item.cover || item.thumb || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5IiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObiBJbWFnZSBBdmFpbGFibGU8L3RleHQ+PC9zdmc+',
+                pubDate: item.published,
+                publishedAt: item.published,
+                link: item.share_url,
+                url: item.share_url,
+                source_id: 'Helakuru Esana',
+                source: { name: 'Helakuru Esana' }
+              };
+            });
             setTotalResults(transformedArticles.length);
             setData(transformedArticles);
             // Save to cache for future visits

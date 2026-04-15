@@ -401,13 +401,13 @@ app.post("/api/chat", async (req, res) => {
                 const isSinhala = userMessage.includes("sinhala") || userMessage.includes("සිංහල");
                 const lang = isSinhala ? "si" : "en";
                 
-                // Fetch from Esana API
-                const esanaResponse = await axios.get(`https://esana-api.vercel.app/EsanaV3`, {
+                // Fetch from new Esena API v3
+                const esanaResponse = await axios.get(`https://esena-news-api-v3.vercel.app/`, {
                     headers: { 'User-Agent': 'Mozilla/5.0' },
                     timeout: 8000
                 });
                 
-                const posts = esanaResponse.data.Posts || [];
+                const posts = esanaResponse.data.news_data?.data || [];
                 
                 if (Array.isArray(posts) && posts.length > 0) {
                     const topPosts = posts.slice(0, 3);
@@ -416,8 +416,8 @@ app.post("/api/chat", async (req, res) => {
                     topPosts.forEach((post, index) => {
                         // Get title based on language
                         const title = isSinhala 
-                            ? (post.title || "ශ්‍රී ලංකා පුවත්")
-                            : (post.title_en || post.title || "Sri Lanka News");
+                            ? (post.titleSi || "ශ්‍රී ලංකා පුවත්")
+                            : (post.titleEn || post.titleSi || "Sri Lanka News");
                         const displayTitle = title.substring(0, 60);
                         reply += `${index + 1}. ${displayTitle}...\n`;
                         if (post.published) {
