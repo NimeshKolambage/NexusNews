@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom'
-import countries from "./countries"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleArrowDown } from '@fortawesome/free-solid-svg-icons'
+import { useNews } from '../context/NewsContext'
 
 
 
@@ -10,9 +10,9 @@ import { faCircleArrowDown } from '@fortawesome/free-solid-svg-icons'
 
 function Header() {
   const [active, setActive] = useState(false);
-  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { newsRegion, setNewsRegion, language, setLanguage } = useNews();
 
   const [theme, setTheme] = useState("light-theme");
   let category = ["business", "entertainment", "general", "health", "science", "sports", "technology","politics"]
@@ -49,14 +49,13 @@ function Header() {
 
         <ul className={active ? "nav-ul flex gap-10 lg:gap-10 lg:basis-3/6 md:basis-4/6 md:justify-end active" : " nav-ul flex gap-10 lg:basis-3/6 md:basis-4/6 justify-end"}>
           <li className="flex items-center"><Link className="no-underline font-medium text-sm" style={{color: 'var(--txt)'}} to="/" onClick={() => { setActive(!active) }}>All News</Link></li>
-          <li className="dropdown-li flex items-center"><Link className="no-underline font-medium flex items-center gap-2 text-sm" style={{color: 'var(--txt)'}} onClick={() => { setShowCategoryDropdown(!showCategoryDropdown); setShowCountryDropdown(false) }}>Top-Headlines <FontAwesomeIcon className={showCategoryDropdown ? "down-arrow-icon down-arrow-icon-active" : "down-arrow-icon"} icon={faCircleArrowDown} /></Link>
+          <li className="dropdown-li flex items-center"><Link className="no-underline font-medium flex items-center gap-2 text-sm" style={{color: 'var(--txt)'}} onClick={() => { setShowCategoryDropdown(!showCategoryDropdown) }}>Top-Headlines <FontAwesomeIcon className={showCategoryDropdown ? "down-arrow-icon down-arrow-icon-active" : "down-arrow-icon"} icon={faCircleArrowDown} /></Link>
 
             <ul className={showCategoryDropdown ? "dropdown p-2 show-dropdown" : "dropdown p-2"}>
               {category.map((element, index) => {
                 return (
                   <li key={index} onClick={() => { setShowCategoryDropdown(!showCategoryDropdown) }}>
-
-                    <Link to={"/top-headlines/" + element} className="flex gap-3 capitalize text-sm" style={{color: 'var(--txt)'}}
+                 <Link to={"/top-headlines/" + element} className="flex gap-3 capitalize text-sm" style={{color: 'var(--txt)'}}
                       onClick={() => {
                         setActive(!active)
                       }}>
@@ -67,28 +66,30 @@ function Header() {
               })}
             </ul>
           </li>
-          <li className="dropdown-li flex items-center"><Link className="no-underline font-medium flex items-center gap-2 text-sm" style={{color: 'var(--txt)'}} onClick={() => { setShowCountryDropdown(!showCountryDropdown); setShowCategoryDropdown(false) }}>Country <FontAwesomeIcon className={showCountryDropdown ? "down-arrow-icon down-arrow-icon-active" : "down-arrow-icon"} icon={faCircleArrowDown} /></Link>
-            <ul className={showCountryDropdown ? "dropdown p-2 show-dropdown" : "dropdown p-2"}>
-              {countries.map((element, index) => {
-                return (
-                  <li key={index} onClick={() => { setShowCountryDropdown(!showCountryDropdown) }}>
-                    <Link to={"/country/" + element?.iso_2_alpha} className="flex gap-3 text-sm" style={{color: 'var(--txt)'}}
-                      onClick={() => {
-                        setActive(!active)
-                      }}>
-                      <img
-                        src={element?.png}
-                        srcSet={`https://flagcdn.com/32x24/${element?.iso_2_alpha}.png 2x`}
-                        alt={element?.countryName}
-                        className="w-8 h-6"
-                      />
-                      <span>{element?.countryName}</span>
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
+          <li className="dropdown-li flex items-center">
+            <select 
+              className="region-select" 
+              value={newsRegion}
+              onChange={(e) => setNewsRegion(e.target.value)}
+              style={{color: 'var(--txt)'}}
+            >
+              <option value="world">🌍 World</option>
+              <option value="srilanka">🇱🇰 Sri Lanka</option>
+            </select>
           </li>
+          {newsRegion === "srilanka" && (
+            <li className="dropdown-li flex items-center">
+              <select 
+                className="region-select" 
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                style={{color: 'var(--txt)'}}
+              >
+                <option value="en">English</option>
+                <option value="si">සිංහල</option>
+              </select>
+            </li>
+          )}
           <li className="flex items-center"><button className="no-underline font-medium bg-none border-none cursor-pointer p-0" onClick={() => { toggleTheme() }}>
       
           <input type="checkbox" className="checkbox" id="checkbox"/>

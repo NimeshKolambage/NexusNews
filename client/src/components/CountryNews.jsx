@@ -3,9 +3,11 @@ import { useParams } from 'react-router-dom';
 import EverythingCard from './EverythingCard';
 import Loader from './Loader';
 import ArticleModal from './ArticleModal';
+import { useNews } from '../context/NewsContext';
 
 function CountryNews() {
   const params = useParams();
+  const { language } = useNews();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalResults, setTotalResults] = useState(1);
@@ -39,28 +41,103 @@ function CountryNews() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch(
-          `https://news-aggregator-dusky.vercel.app/country/${params.iso}?page=${page}&pageSize=${pageSize}`
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const myJson = await response.json();
-        if (myJson.success) {
-          setTotalResults(myJson.data.totalResults);
-          setData(myJson.data.articles);
+        let response;
+        let myJson;
+
+        if (params.iso === 'lk') {
+          // Sri Lanka: Esana API with 8-second timeout
+          const lang = language === 'si' ? 'si' : 'en';
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
+          
+          try {
+            console.log(`🇱🇰 Fetching Sri Lanka news (${lang})...`, new Date().toLocaleTimeString());
+            response = await fetch(`https://esana-api.vercel.app/EsanaV3?lang=${lang}`, 
+              { signal: controller.signal }
+            );
+            clearTimeout(timeoutId);
+            console.log(`✅ Got response: ${response.status}`, response.headers.get('content-type'));
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            myJson = await response.json();
+            console.log(`📦 API Response:`, { posts: myJson.Posts?.length, status: myJson.Status });
+            
+            if (myJson.Status?.code === 429) {
+              throw new Error("🕐 Rate Limited - Try again in 10 minutes");
+            }
+            if (!myJson.Status?.success && myJson.Status) {
+              throw new Error(myJson.Status.description);
+            }
+          } catch (esanaError) {
+            clearTimeout(timeoutId);
+            console.error(`❌ Esana error (${esanaError.name}):`, esanaError.message);
+            setError(`Can't fetch Sri Lanka news right now. ${esanaError.message}`);
+            setIsLoading(false);
+            return;
+          }
+          
+          // Transform Esana posts
+          const esanaData = myJson.Posts || [];
+          if (esanaData.length > 0) {
+            const transformedArticles = esanaData.map(item => ({
+              title: language === 'en' ? (item.title_en || item.title || '') : (item.title || item.title_en || ''),
+              description: language === 'en' 
+                ? (item.content?.[0]?.data_en || item.content?.[0]?.data || '') 
+                : (item.content?.[0]?.data || item.content?.[0]?.data_en || ''),
+              content: language === 'en' 
+                ? (item.content?.[0]?.data_en || item.content?.[0]?.data || '') 
+                : (item.content?.[0]?.data || item.content?.[0]?.data_en || ''),
+              image_url: item.thumb || 'https://via.placeholder.com/400x300',
+              urlToImage: item.thumb || 'https://via.placeholder.com/400x300',
+              pubDate: item.published,
+              publishedAt: item.published,
+              link: item.link,
+              url: item.link,
+              source_id: 'Esana',
+              source: { name: 'Esana' }
+            }));
+            setTotalResults(transformedArticles.length);
+            setData(transformedArticles);
+          } else {
+            setError("No Sri Lanka news available right now");
+          }
         } else {
-          setError(myJson.message || "An error occurred");
+          // Other countries: news-aggregator API with 8-second timeout
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
+          
+          try {
+            response = await fetch(
+              `https://news-aggregator-dusky.vercel.app/country/${params.iso}?page=${page}&pageSize=${pageSize}`,
+              { signal: controller.signal }
+            );
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            myJson = await response.json();
+            
+            if (myJson.success) {
+              setTotalResults(myJson.data.totalResults);
+              setData(myJson.data.articles);
+            } else {
+              throw new Error(myJson.message || "Failed to fetch news");
+            }
+          } catch (error) {
+            clearTimeout(timeoutId);
+            throw error;
+          }
         }
       } catch (error) {
         console.error("Fetch error:", error);
-        setError("Failed to fetch news. Please try again later.");
+        setError(`❌ ${error.message || "Failed to fetch news. Please try again."}`);
+        setData([]);
       } finally {
         setIsLoading(false);
       }
     };
+    
     fetchNews();
-  }, [page, params.iso]);
+  }, [page, params.iso, language]);
 
   const featuredArticle = data && data.length > 0 ? data[0] : null;
 
