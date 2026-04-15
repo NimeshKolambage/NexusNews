@@ -49,9 +49,9 @@ function TopHeadlines() {
           const lang = language === 'si' ? 'si' : 'en';
           url = `https://esana-api.vercel.app/EsanaV3?lang=${lang}`;
         } else {
-          // World news using existing API
+          // World news using local backend (with backup API fallback)
           const categoryParam = params.category ? `&category=${params.category}` : "";
-          url = `https://news-aggregator-dusky.vercel.app/top-headlines?language=en${categoryParam}&page=${page}&pageSize=${pageSize}`;
+          url = `http://localhost:3000/top-headlines?language=en${categoryParam}&page=${page}&pageSize=${pageSize}`;
         }
 
         console.log("Fetching from:", url); // Debug log

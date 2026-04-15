@@ -36,11 +36,57 @@ function CountryNews() {
 
   const pageSize = 12;
 
+  // Cache utility functions
+  const getCacheKey = (country) => `nexusnews_country_${country}`;
+  const getCacheExpiry = (country) => `nexusnews_country_expiry_${country}`;
+  const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+
+  const isCacheValid = (country) => {
+    const expiry = localStorage.getItem(getCacheExpiry(country));
+    if (!expiry) return false;
+    return parseInt(expiry) > Date.now();
+  };
+
+  const getCache = (country) => {
+    try {
+      const cached = localStorage.getItem(getCacheKey(country));
+      return cached ? JSON.parse(cached) : null;
+    } catch (err) {
+      console.warn("Cache read error:", err);
+      return null;
+    }
+  };
+
+  const setCache = (country, data) => {
+    try {
+      localStorage.setItem(getCacheKey(country), JSON.stringify(data));
+      localStorage.setItem(getCacheExpiry(country), (Date.now() + CACHE_DURATION).toString());
+      console.log(`📦 Cached ${country} news for 1 hour`);
+    } catch (err) {
+      console.warn("Cache write error:", err);
+    }
+  };
+
   useEffect(() => {
     const fetchNews = async () => {
       setIsLoading(true);
       setError(null);
       try {
+        // Check cache first (only on page 1)
+        if (page === 1) {
+          const cacheKey = params.iso;
+          if (isCacheValid(cacheKey)) {
+            const cachedData = getCache(cacheKey);
+            if (cachedData) {
+              console.log(`✅ Using cached ${cacheKey} news`);
+              setData(cachedData.articles || cachedData);
+              setTotalResults(cachedData.totalResults || cachedData.length);
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+
         let response;
         let myJson;
 
@@ -58,7 +104,18 @@ function CountryNews() {
             clearTimeout(timeoutId);
             console.log(`✅ Got response: ${response.status}`, response.headers.get('content-type'));
             
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            if (!response.ok) {
+              // Try stale cache as fallback
+              const staleCache = getCache(params.iso);
+              if (staleCache) {
+                console.log(`⚠️  Using stale cache (HTTP ${response.status})`);
+                setData(staleCache.articles || staleCache);
+                setError("Using cached data - API temporarily unavailable");
+                setIsLoading(false);
+                return;
+              }
+              throw new Error(`HTTP ${response.status}`);
+            }
             myJson = await response.json();
             console.log(`📦 API Response:`, { posts: myJson.Posts?.length, status: myJson.Status });
             
@@ -98,6 +155,8 @@ function CountryNews() {
             }));
             setTotalResults(transformedArticles.length);
             setData(transformedArticles);
+            // Save to cache for future visits
+            setCache(params.iso, transformedArticles);
           } else {
             setError("No Sri Lanka news available right now");
           }
@@ -108,17 +167,30 @@ function CountryNews() {
           
           try {
             response = await fetch(
-              `https://news-aggregator-dusky.vercel.app/country/${params.iso}?page=${page}&pageSize=${pageSize}`,
+              `http://localhost:3000/country-news/${params.iso}?page=${page}&pageSize=${pageSize}`,
               { signal: controller.signal }
             );
             clearTimeout(timeoutId);
             
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            if (!response.ok) {
+              // Try stale cache as fallback
+              const staleCache = getCache(params.iso);
+              if (staleCache) {
+                console.log(`⚠️  Using stale cache (HTTP ${response.status})`);
+                setData(staleCache.articles || staleCache);
+                setError("Using cached data - API temporarily unavailable");
+                setIsLoading(false);
+                return;
+              }
+              throw new Error(`HTTP ${response.status}`);
+            }
             myJson = await response.json();
             
             if (myJson.success) {
               setTotalResults(myJson.data.totalResults);
               setData(myJson.data.articles);
+              // Save to cache for future visits
+              setCache(params.iso, { articles: myJson.data.articles, totalResults: myJson.data.totalResults });
             } else {
               throw new Error(myJson.message || "Failed to fetch news");
             }
