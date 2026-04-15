@@ -47,13 +47,18 @@ function AllNews() {
 
   // Cache utility functions
   const getCacheKey = (region) => {
-    // Make cache key language-aware for Sri Lanka
+    // For Sri Lanka: include language in cache key so English and Sinhala have separate caches
     if (region === 'srilanka') {
       return `nexusnews_cache_srilanka_${language}`;
     }
     return `nexusnews_cache_${region}`;
   };
-  const getCacheExpiry = (region) => `nexusnews_expiry_${region}`;
+  const getCacheExpiry = (region) => {
+    if (region === 'srilanka') {
+      return `nexusnews_expiry_srilanka_${language}`;
+    }
+    return `nexusnews_expiry_${region}`;
+  };
   const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
   const isCacheValid = (region) => {
@@ -163,15 +168,13 @@ function AllNews() {
                   .substring(0, 300) || '';
               }
               
-              // When Sinhala is selected, ONLY show Sinhala content (no English fallback)
-              const title = language === 'en' ? (item.titleEn || item.titleSi || '') : item.titleSi || '';
-              
               return {
-                title: title,
+                // When Sinhala selected: ONLY show Sinhala (no English fallback)
+                title: language === 'en' ? (item.titleEn || item.titleSi || '') : (item.titleSi || ''),
                 description: description,
                 content: description,
-                image_url: item.cover || item.thumb || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5IiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObiBJbWFnZSBBdmFpbGFibGU8L3RleHQ+PC9zdmc+',
-                urlToImage: item.cover || item.thumb || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5IiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObiBJbWFnZSBBdmFpbGFibGU8L3RleHQ+PC9zdmc+',
+                image_url: item.cover || item.thumb || 'https://via.placeholder.com/400x300',
+                urlToImage: item.cover || item.thumb || 'https://via.placeholder.com/400x300',
                 pubDate: item.published,
                 publishedAt: item.published,
                 link: item.share_url,

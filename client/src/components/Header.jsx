@@ -49,6 +49,7 @@ function Header() {
 
         <ul className={active ? "nav-ul flex gap-10 lg:gap-10 lg:basis-3/6 md:basis-4/6 md:justify-end active" : " nav-ul flex gap-10 lg:basis-3/6 md:basis-4/6 justify-end"}>
           <li className="flex items-center"><Link className="no-underline font-medium text-sm" style={{color: 'var(--txt)'}} to="/" onClick={() => { setActive(!active) }}>All News</Link></li>
+          {newsRegion !== 'srilanka' && (
           <li className="dropdown-li flex items-center"><Link className="no-underline font-medium flex items-center gap-2 text-sm" style={{color: 'var(--txt)'}} onClick={() => { setShowCategoryDropdown(!showCategoryDropdown) }}>Top-Headlines <FontAwesomeIcon className={showCategoryDropdown ? "down-arrow-icon down-arrow-icon-active" : "down-arrow-icon"} icon={faCircleArrowDown} /></Link>
 
             <ul className={showCategoryDropdown ? "dropdown p-2 show-dropdown" : "dropdown p-2"}>
@@ -66,6 +67,7 @@ function Header() {
               })}
             </ul>
           </li>
+          )}
           <li className="dropdown-li flex items-center">
             <select 
               className="region-select" 
