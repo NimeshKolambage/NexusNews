@@ -10,8 +10,8 @@ app.use(express.urlencoded({ extended: true }));
 
 const API_KEY = process.env.API_KEY;
 
-function fetchNews(Url,res) {
-    axios.get(Url)
+function fetchNews(url,res) {
+    axios.get(url)
        .then(response => {
 
         if(response.data.totalResults > 0) {
@@ -39,11 +39,38 @@ function fetchNews(Url,res) {
         });
     });
 }
+ 
+//top headlines
+app.options("/top-headlines",cors());
+app.get("/top-headlines",(req,res)=>{
+    let pageSize = parseInt(req.query.pageSize) || 80;
+    let page = parseInt(req.query.page) || 1;
+    let url=`https://newsapi.org/v2/top-headlines?country=us&page=${page}&pageSize=${pageSize}&apiKey=${API_KEY}`; 
+    fetchNews(url,res); 
+})
+
 
 app.get("/all-news",(req,res)=>{
 
     let pageSize = parseInt(req.query.pageSize) || 10;
     let page = parseInt(req.query.page) || 1;
-    let url=`https://newsapi.org/v2/everything?q=page=${page}&pageSize=${pageSize}&apiKey=${API_KEY}`; 
+    let category = req.query.category || "business";
+    let url=`https://newsapi.org/v2/top-headlines?country=us&category=${category}&page=${page}&pageSize=${pageSize}&apiKey=${API_KEY}`; 
     fetchNews(url,res); 
 })
+
+//country news
+app.options("/country-news/:ios",cors());
+app.get("/country-news/:ios",(req,res)=>{
+    let pageSize = parseInt(req.query.pageSize) || 10;  
+    let page = parseInt(req.query.page) || 1;
+    let country = req.params.ios;
+    let url=`https://newsapi.org/v2/top-headlines?country=${country}&page=${page}&pageSize=${pageSize}&apiKey=${API_KEY}`;
+    fetchNews(url,res);
+})
+
+//port
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
