@@ -1,80 +1,66 @@
 import React from "react";
 
 function Card(props) {
+  // Extract category from source or use a default
+  const getCategory = () => {
+    const categories = ["Business", "Entertainment", "General", "Health", "Science", "Sports", "Technology", "Politics"];
+    return categories[Math.floor(Math.random() * categories.length)];
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
+
   return (
-    <div className="everything-card mt-10">
-      <div className="everything-card flex flex-wrap p-5 gap-1 mb-1">
-        <b className="title">{props.title}</b>
-        <div className="everything-card-img mx-auto">
-          <img className="everything-card-img" src={props.imgUrl} alt="img" />
-        </div>
-        <div className="description">
-          <p className="description-text leading-7">
-            {props.description?.substring(0, 200)}
-          </p>
-        </div>
+    <div className="everything-card">
+      {/* Card Image */}
+      <div className="card-image-container">
+        <img 
+          className="everything-card-img" 
+          src={props.imgUrl || "https://via.placeholder.com/400x200?text=No+Image"} 
+          alt={props.title}
+          onError={(e) => {
+            e.target.src = "https://via.placeholder.com/400x200?text=No+Image";
+          }}
+        />
+      </div>
+
+      {/* Card Content */}
+      <div className="card-content">
+        {/* Category Tag */}
+        <span className="card-category">{getCategory()}</span>
+
+        {/* Title */}
+        <h3 className="title">
+          {props.title?.substring(0, 60)}
+          {props.title?.length > 60 ? "..." : ""}
+        </h3>
+
+        {/* Info Section */}
         <div className="info">
-          <div className="source-info flex items-center gap-2">
-            <span className="font-semibold">Source:</span>
+          <div className="source-info">
+            <span className="font-semibold text-xs" style={{color: 'var(--txt)'}}>Source:</span>
             <a
               href={props.url}
               target="_blank"
-              className="link underline break-words"
+              rel="noopener noreferrer"
+              className="link"
+              title={props.source}
             >
-              {props.source.substring(0, 70)}
+              {props.source?.substring(0, 50)}
             </a>
           </div>
-          <div className="origin flex flex-col">
-            <p className="origin-item">
-              <span className="font-semibold">Author:</span>
-              {props.author}
-            </p>
-            <p className="origin-item">
-              <span className="font-semibold">Published At:</span>
-              ({props.publishedAt})
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Added the new card content with styles */}
-      <div className="flex lg:flex-row">
-        <div
-          className="h-48 lg:h-auto lg:w-48 flex-none bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden"
-          style={{ backgroundImage: `url(${props.imageUrlLeft})` }}
-          title={props.imageLeftTitle}
-        ></div>
-        <div className="border rounded-b lg:rounded-b-none lg:rounded-r p-4 flex flex-col justify-between leading-normal">
-          <div className="mb-8">
-            <p className="text-sm text-gray-600 flex items-center">
-              {props.memberIcon && (
-                <svg
-                  className="fill-current text-gray-500 w-3 h-3 mr-2"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  {props.memberIcon}
-                </svg>
-              )}
-              {props.memberText}
-            </p>
-            <div className="text-gray-900 font-bold text-xl mb-2">
-              {props.cardTitle}
-            </div>
-            <p className="text-gray-700 text-base">{props.cardDescription}</p>
-          </div>
-          <div className="flex items-center">
-            {props.authorImage && (
-              <img
-                className="w-10 h-10 rounded-full mr-4"
-                src={props.authorImage}
-                alt="Avatar"
-              />
+          <div className="origin">
+            {props.author && (
+              <p className="origin-item">
+                <span className="font-semibold text-xs">By:</span> {props.author?.substring(0, 30)}
+              </p>
             )}
-            <div className="text-sm">
-              <p className="text-gray-900 leading-none">{props.authorName}</p>
-              <p className="text-gray-600">{props.publishedDate}</p>
-            </div>
+            <p className="origin-item">
+              {formatDate(props.publishedAt)}
+            </p>
           </div>
         </div>
       </div>
