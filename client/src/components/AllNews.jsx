@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import EverythingCard from './EverythingCard';
 import Loader from './Loader';
 import ArticleModal from './ArticleModal';
+import { useNews } from '../context/NewsContext';
 
 function AllNews() {
+  const { newsRegion, language } = useNews();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
@@ -48,29 +50,92 @@ function AllNews() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch(
-          `https://news-aggregator-dusky.vercel.app/all-news?page=${page}&pageSize=${pageSize}`
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const myJson = await response.json();
-        if (myJson.success) {
-          setTotalResults(myJson.data.totalResults);
-          setData(myJson.data.articles);
-          setFeaturedIndex(0);
+        let url = '';
+        let options = {};
+
+        if (newsRegion === 'srilanka') {
+          // Sri Lanka news using Esana API with language parameter
+          const lang = language === 'si' ? 'si' : 'en';
+          url = `https://esana-api.vercel.app/EsanaV3?lang=${lang}`;
         } else {
-          setError(myJson.message || "An error occurred");
+          // World all news using existing API
+          url = `https://news-aggregator-dusky.vercel.app/all-news?page=${page}&pageSize=${pageSize}`;
+        }
+
+        console.log("Fetching from:", url); // Debug log
+        
+        const response = await fetch(url, options);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Fetch error response:", response.status, errorText);
+          if (response.status === 429) {
+            throw new Error("API Rate Limited - Please try again in a few minutes");
+          }
+          throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+        }
+        
+        const myJson = await response.json();
+        console.log("API Response:", myJson); // Debug log
+        
+        // Check for API-level errors (e.g., rate limiting)
+        if (myJson.Status && !myJson.Status.success) {
+          throw new Error(`API Error: ${myJson.Status.description || 'Unknown error'}`);
+        }
+        
+        // Handle different API response formats
+        if (newsRegion === 'srilanka') {
+          // Esana API format - has Posts array with specific structure
+          const esanaData = myJson.Posts || [];
+          if (Array.isArray(esanaData) && esanaData.length > 0) {
+            // Transform Esana format to our unified format
+            const transformedArticles = esanaData.map(item => {
+              // Get description from content array
+              let description = '';
+              if (Array.isArray(item.content) && item.content.length > 0) {
+                // Use English (data_en) if language is English, otherwise Sinhala (data)
+                description = language === 'en' ? (item.content[0].data_en || item.content[0].data || '') : (item.content[0].data || item.content[0].data_en || '');
+              }
+              
+              return {
+                title: language === 'en' ? (item.title_en || item.title || '') : (item.title || item.title_en || ''),
+                description: description,
+                content: description,
+                image_url: item.thumb || 'https://via.placeholder.com/400x300',
+                urlToImage: item.thumb || 'https://via.placeholder.com/400x300',
+                pubDate: item.published,
+                publishedAt: item.published,
+                link: item.link,
+                url: item.link,
+                source_id: 'Esana',
+                source: { name: 'Esana' }
+              };
+            });
+            setTotalResults(transformedArticles.length);
+            setData(transformedArticles);
+            setFeaturedIndex(0);
+          } else {
+            setError("No Sri Lanka news found. Try again later.");
+          }
+        } else {
+          // Custom API format
+          if (myJson.success) {
+            setTotalResults(myJson.data.totalResults);
+            setData(myJson.data.articles);
+            setFeaturedIndex(0);
+          } else {
+            setError(myJson.message || "An error occurred fetching world news");
+          }
         }
       } catch (error) {
         console.error("Fetch error:", error);
-        setError("Failed to fetch news. Please try again later.");
+        setError(`❌ ${error.message || "Failed to fetch news. Please try again later."}`);
       } finally {
         setIsLoading(false);
       }
     };
     fetchNews();
-  }, [page]);
+  }, [page, newsRegion, language]);
 
   // Auto-rotate featured articles
   useEffect(() => {
@@ -95,7 +160,7 @@ function AllNews() {
       {!isLoading && featuredArticle && page === 1 && (
         <div className="container mx-auto px-5 pt-10 pb-5">
           <div className="hero-section-wrapper">
-            <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || 'https://via.placeholder.com/1400x500'})`}}>
+            <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || featuredArticle.image_url || 'https://via.placeholder.com/1400x500'})`}}>
               <div className="hero-overlay">
                 <span className="hero-tag">Editor's Choice</span>
                 <h2 className="hero-title">
@@ -103,8 +168,8 @@ function AllNews() {
                   {featuredArticle.title?.length > 80 ? "..." : ""}
                 </h2>
                 <div className="hero-meta">
-                  <span>{featuredArticle.source?.name || "News"}</span>
-                  <span>{new Date(featuredArticle.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                  <span>{featuredArticle.source?.name || featuredArticle.source_id || "News"}</span>
+                  <span>{new Date(featuredArticle.publishedAt || featuredArticle.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                 </div>
               </div>
             </div>
@@ -150,19 +215,30 @@ function AllNews() {
       {/* News Cards Grid */}
       {!isLoading && (
         <div className='cards'>
-          {data.map((element, index) => (
-            <div key={index} onClick={() => handleCardClick(element)}>
-              <EverythingCard
-                title={element.title}
-                description={element.description}
-                imgUrl={element.urlToImage}
-                publishedAt={element.publishedAt}
-                url={element.url}
-                author={element.author}
-                source={element.source.name}
-              />
-            </div>
-          ))}
+          {data.map((element, index) => {
+            // Handle both API formats
+            const title = element.title;
+            const description = element.description || element.content;
+            const imgUrl = element.urlToImage || element.image_url;
+            const publishedAt = element.publishedAt || element.pubDate;
+            const url = element.url || element.link;
+            const author = element.author || (element.creator ? element.creator[0] : 'Unknown');
+            const source = element.source?.name || element.source_id || 'News';
+
+            return (
+              <div key={index} onClick={() => handleCardClick(element)}>
+                <EverythingCard
+                  title={title}
+                  description={description}
+                  imgUrl={imgUrl}
+                  publishedAt={publishedAt}
+                  url={url}
+                  author={author}
+                  source={source}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
 

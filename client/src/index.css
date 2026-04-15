@@ -149,6 +149,34 @@ nav ul li a:hover {
     color: var(--accent) !important;
 }
 
+/* Region/Language Select Dropdowns */
+.region-select {
+    background: var(--search-background);
+    color: var(--txt);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.region-select:hover {
+    border-color: var(--accent);
+}
+
+.region-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(5, 150, 105, 0.2);
+}
+
+.dark-theme .region-select {
+    background: var(--secondary);
+    border-color: var(--border);
+}
+
 .dropdown-li {
     position: relative;
 }

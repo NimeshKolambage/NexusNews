@@ -29,9 +29,23 @@ function ArticleModal({ article, onClose }) {
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    } catch {
+      return dateString;
+    }
   };
+
+  // Handle both API formats
+  const imageUrl = article.urlToImage || article.image_url;
+  const title = article.title;
+  const description = article.description;
+  const content = article.content;
+  const publishDate = article.publishedAt || article.pubDate;
+  const author = article.author || (article.creator ? article.creator[0] : null);
+  const sourceName = article.source?.name || article.source_id || 'News';
+  const articleUrl = article.url || article.link;
 
   return (
     <div className="modal-backdrop" onClick={handleBackdropClick}>
@@ -42,11 +56,11 @@ function ArticleModal({ article, onClose }) {
         </button>
 
         {/* Modal Image */}
-        {article.urlToImage && (
+        {imageUrl && (
           <div className="modal-image-container">
             <img 
-              src={article.urlToImage} 
-              alt={article.title}
+              src={imageUrl} 
+              alt={title}
               className="modal-image"
               onError={(e) => {
                 e.target.style.display = 'none';
@@ -58,51 +72,49 @@ function ArticleModal({ article, onClose }) {
         {/* Modal Body */}
         <div className="modal-body">
           {/* Category */}
-          <span className="modal-tag">{article.source?.name || 'News'}</span>
+          <span className="modal-tag">{sourceName}</span>
 
           {/* Title */}
-          <h1 className="modal-title">{article.title}</h1>
+          <h1 className="modal-title">{title}</h1>
 
           {/* Meta Information */}
           <div className="modal-meta">
             <div className="modal-meta-item">
               <strong>Published:</strong>
-              <span>{formatDate(article.publishedAt)}</span>
+              <span>{formatDate(publishDate)}</span>
             </div>
-            {article.author && (
+            {author && (
               <div className="modal-meta-item">
                 <strong>Author:</strong>
-                <span>{article.author}</span>
+                <span>{author}</span>
               </div>
             )}
-            {article.source && (
-              <div className="modal-meta-item">
-                <strong>Source:</strong>
-                <span>{article.source.name}</span>
-              </div>
-            )}
+            <div className="modal-meta-item">
+              <strong>Source:</strong>
+              <span>{sourceName}</span>
+            </div>
           </div>
 
           {/* Description */}
-          {article.description && (
+          {description && (
             <div className="modal-section">
               <h2>Summary</h2>
-              <p>{article.description}</p>
+              <p>{description}</p>
             </div>
           )}
 
           {/* Content */}
-          {article.content && (
+          {content && (
             <div className="modal-section">
               <h2>Full Article</h2>
-              <p>{article.content}</p>
+              <p>{content}</p>
             </div>
           )}
 
           {/* Read Full Article Button */}
           <div className="modal-actions">
             <a 
-              href={article.url} 
+              href={articleUrl} 
               target="_blank" 
               rel="noopener noreferrer"
               className="modal-link-btn"

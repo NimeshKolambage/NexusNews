@@ -13,7 +13,13 @@ function Card(props) {
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
-    const date = new Date(dateString);
+    let date;
+    // Handle both ISO format and other formats
+    try {
+      date = new Date(dateString);
+    } catch {
+      return "";
+    }
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   };
 
