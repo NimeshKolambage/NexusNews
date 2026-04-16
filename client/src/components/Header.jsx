@@ -8,6 +8,7 @@ import { useNews } from '../context/NewsContext'
 
 
 
+
 function Header() {
   const [active, setActive] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -68,6 +69,7 @@ function Header() {
   return (
     <header className="">
      <nav className={`fixed top-0 left-0 w-full h-[60px] z-50 flex items-center justify-between px-6 transition-all duration-300 ${isScrolled ? 'scrolled-nav' : 'transparent-nav'}`} style={{backgroundColor: isScrolled ? 'var(--primary)' : 'transparent', borderBottom: isScrolled ? '1px solid var(--border)' : 'none'}}>
+      
       
       <h3 className="heading font-bold text-xl z-50 m-0 p-0">NexusNews</h3>
 
