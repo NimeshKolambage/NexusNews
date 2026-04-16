@@ -374,21 +374,277 @@
 }
 
 /* ── Mobile ── */
+@media (max-width: 768px) {
+  .chat-float-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+  }
+
+  .chat-widget {
+    width: 90vw;
+    height: 70vh;
+    max-width: 380px;
+    bottom: 20px;
+    right: 10px;
+    border-radius: 14px;
+  }
+
+  .chat-header {
+    padding: 14px 16px;
+  }
+
+  .chat-title {
+    font-size: 14px;
+    gap: 6px;
+  }
+
+  .chat-brand-label {
+    font-size: 9px;
+  }
+
+  .chat-ticker {
+    padding: 4px 12px;
+    font-size: 10px;
+  }
+
+  .chat-ticker-tag {
+    font-size: 8px;
+    padding: 2px 6px;
+  }
+
+  .chat-messages {
+    padding: 12px 12px 6px;
+    gap: 8px;
+  }
+
+  .message-content {
+    max-width: 85%;
+    font-size: 12.5px;
+    padding: 8px 12px;
+  }
+
+  .suggestion-chip {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .chat-input-container {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .chat-input {
+    font-size: 12px;
+    padding: 8px 10px;
+    min-height: 36px;
+  }
+
+  .chat-send-btn {
+    min-width: 44px;
+    height: 36px;
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  .chat-footer {
+    padding: 4px 12px 6px;
+    font-size: 9px;
+  }
+}
+
 @media (max-width: 480px) {
+  .chat-float-btn {
+    bottom: 16px;
+    right: 16px;
+    width: 52px;
+    height: 52px;
+    font-size: 22px;
+    border-width: 2px;
+  }
+
   .chat-widget {
     width: calc(100vw - 16px);
     height: calc(100dvh - 90px);
     bottom: 8px;
     right: 8px;
+    left: auto;
     border-radius: 12px;
   }
 
-  .chat-float-btn {
-    bottom: 16px;
-    right: 16px;
+  .chat-header {
+    padding: 12px 14px;
+  }
+
+  .chat-brand {
+    gap: 0px;
+  }
+
+  .chat-brand-label {
+    font-size: 8px;
+    letter-spacing: 0.06em;
+  }
+
+  .chat-title {
+    font-size: 13px;
+    gap: 5px;
+  }
+
+  .chat-title-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .chat-close-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+
+  .chat-ticker {
+    padding: 3px 10px;
+    font-size: 9px;
+    gap: 6px;
+  }
+
+  .chat-ticker-tag {
+    font-size: 7px;
+    padding: 1px 5px;
+  }
+
+  .chat-ticker-text {
+    font-size: 9px;
+  }
+
+  .chat-messages {
+    padding: 10px 10px 6px;
+    gap: 7px;
+  }
+
+  .quick-suggestions {
+    gap: 5px;
+  }
+
+  .suggestion-chip {
+    font-size: 10px;
+    padding: 4px 9px;
+    border-radius: 16px;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+  }
+
+  .message {
+    animation: slideIn 0.25s ease;
   }
 
   .message-content {
     max-width: 88%;
+    font-size: 12px;
+    padding: 8px 11px;
+    border-radius: 11px;
+    line-height: 1.4;
+  }
+
+  .message.user .message-content {
+    border-radius: 14px 2px 14px 14px;
+  }
+
+  .message.bot .message-content {
+    border-radius: 2px 14px 14px 14px;
+  }
+
+  .message-content.typing {
+    padding: 9px 12px;
+    gap: 4px;
+  }
+
+  .message-content.typing span {
+    width: 6px;
+    height: 6px;
+  }
+
+  .message-source {
+    font-size: 10px;
+    margin-top: 5px;
+  }
+
+  .chat-input-container {
+    padding: 8px 10px;
+    gap: 6px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .chat-input {
+    font-size: 11.5px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    min-height: 36px;
+    max-height: 80px;
+  }
+
+  .chat-input::placeholder {
+    font-size: 10px;
+  }
+
+  .chat-send-btn {
+    min-width: 40px;
+    min-height: 36px;
+    height: 36px;
+    width: auto;
+    padding: 8px 11px;
+    font-size: 11px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .chat-footer {
+    padding: 3px 10px 5px;
+    font-size: 8px;
+    letter-spacing: 0.01em;
+  }
+}
+
+@media (max-width: 360px) {
+  .chat-float-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .chat-widget {
+    width: calc(100vw - 8px);
+  }
+
+  .chat-header {
+    padding: 10px 12px;
+  }
+
+  .chat-title {
+    font-size: 12px;
+  }
+
+  .message-content {
+    max-width: 92%;
+    font-size: 11px;
+  }
+
+  .suggestion-chip {
+    font-size: 9px;
+    padding: 3px 8px;
+  }
+
+  .chat-input {
+    font-size: 11px;
+  }
+
+  .chat-send-btn {
+    min-width: 36px;
+    padding: 6px 10px;
+    font-size: 10px;
   }
 }
