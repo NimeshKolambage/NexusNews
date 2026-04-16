@@ -358,6 +358,10 @@ app.get("/country-news/:ios", async (req,res)=>{
     });
 })
 
+app.use(cors({
+  origin: "https://nexus-news.live" 
+}));
+
 // Chat Bot API
 app.options("/api/chat", cors());
 app.post("/api/chat", async (req, res) => {
