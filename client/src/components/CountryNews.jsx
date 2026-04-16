@@ -180,7 +180,7 @@ function CountryNews() {
           
           try {
             response = await fetch(
-              `http://localhost:3000/country-news/${params.iso}?page=${page}&pageSize=${pageSize}`,
+              `https://nexusnews-production.up.railway.app/country-news/${params.iso}?page=${page}&pageSize=${pageSize}`,
               { signal: controller.signal }
             );
             clearTimeout(timeoutId);

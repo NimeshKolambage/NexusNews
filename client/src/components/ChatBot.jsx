@@ -34,7 +34,7 @@ function ChatBot() {
 
     try {
       // Use local backend directly
-      const response = await fetch('http://localhost:3000/api/chat', {
+      const response = await fetch('https://nexusnews-production.up.railway.app/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text })

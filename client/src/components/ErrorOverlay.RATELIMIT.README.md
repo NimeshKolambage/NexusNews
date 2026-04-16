@@ -138,7 +138,7 @@ export default function App() {
 // AllNews.jsx
 const fetchNews = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/all-news');
+    const response = await fetch('https://nexusnews-production.up.railway.app/api/all-news');
     const data = await response.json();
     
     // Check for rate limited error

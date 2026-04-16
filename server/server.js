@@ -370,7 +370,7 @@ app.post("/api/chat", async (req, res) => {
         if (userMessage.includes("news") || userMessage.includes("latest") || userMessage.includes("world")) {
             try {
                 // Fetch real news from the local API with timeout
-                const newsResponse = await axios.get("http://localhost:3000/all-news?pageSize=5", {
+                const newsResponse = await axios.get("https://nexusnews-production.up.railway.app/all-news?pageSize=5", {
                     timeout: 5000
                 });
                 

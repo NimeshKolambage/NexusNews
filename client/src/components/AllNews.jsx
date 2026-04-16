@@ -114,7 +114,7 @@ function AllNews() {
           url = `https://esena-news-api-v3.vercel.app/`;
         } else {
           // World all news using local backend (with backup API fallback)
-          url = `http://localhost:3000/all-news?page=${page}&pageSize=${pageSize}`;
+          url = `https://nexusnews-production.up.railway.app/all-news?page=${page}&pageSize=${pageSize}`;
         }
 
         console.log("🌐 Fetching fresh data from:", url); // Debug log
