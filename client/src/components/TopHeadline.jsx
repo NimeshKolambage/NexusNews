@@ -50,7 +50,7 @@ function TopHeadlines() {
         } else {
           // World news using local backend (with backup API fallback)
           const categoryParam = params.category ? `&category=${params.category}` : "";
-          url = `http://localhost:3000/top-headlines?language=en${categoryParam}&page=${page}&pageSize=${pageSize}`;
+          url = `https://nexusnews-production.up.railway.app/top-headlines?language=en${categoryParam}&page=${page}&pageSize=${pageSize}`;
         }
 
         console.log("Fetching from:", url); // Debug log
