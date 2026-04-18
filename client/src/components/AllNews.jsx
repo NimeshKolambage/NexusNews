@@ -238,7 +238,7 @@ function AllNews() {
           <div className="hero-section-wrapper">
             <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || featuredArticle.image_url || 'https://via.placeholder.com/1400x500'})`}}>
               <div className="hero-overlay">
-                <span className="hero-tag">Editor's Choice</span>
+                <span className="hero-tag">Daily News</span>
                 <h2 className="hero-title">
                   {featuredArticle.title?.substring(0, 80)}
                   {featuredArticle.title?.length > 80 ? "..." : ""}
