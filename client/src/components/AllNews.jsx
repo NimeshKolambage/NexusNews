@@ -189,8 +189,8 @@ function AllNews() {
                 title: language === 'en' ? (item.titleEn || item.titleSi || '') : (item.titleSi || ''),
                 description: description,
                 content: description,
-                image_url: item.cover || item.thumb || 'https://placehold.co/400x300?text=No+Image',
-                urlToImage: item.cover || item.thumb || 'https://placehold.co/400x300?text=No+Image',
+                image_url: item.cover || item.thumb || 'https://placehold.co/400x300?text=Nexus+News',
+                urlToImage: item.cover || item.thumb || 'https://placehold.co/400x300?text=Nexus+News',
                 pubDate: item.published,
                 publishedAt: item.published,
                 link: item.share_url,
@@ -212,13 +212,15 @@ function AllNews() {
             setError("No Sri Lanka news found. Try again later");
           }
         } else {
-          // Custom API format
+          // Custom API format for world news
           if (myJson.success) {
             setTotalResults(myJson.data.totalResults);
             setData(myJson.data.articles);
             setFeaturedIndex(0);
-            // Cache the data
-            setCache('world', { articles: myJson.data.articles, totalResults: myJson.data.totalResults });
+            // Cache the data for all pages
+            if (newsRegion !== 'srilanka') {
+              setCache('world', { articles: myJson.data.articles, totalResults: myJson.data.totalResults });
+            }
           } else {
             setError(myJson.message || "An error occurred fetching world news");
           }
@@ -256,7 +258,7 @@ function AllNews() {
       {!isLoading && featuredArticle && page === 1 && (
         <div className="container mx-auto px-5 pt-10 pb-5">
           <div className="hero-section-wrapper">
-            <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || featuredArticle.image_url || 'https://placehold.co/1400x500?text=No+Image'})`}}>
+            <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || featuredArticle.image_url || 'https://placehold.co/1400x500?text=Nexus+News'})`}}>
               <div className="hero-overlay">
                 <span className="hero-tag">Daily News</span>
                 <h2 className="hero-title">

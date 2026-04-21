@@ -34,16 +34,16 @@ function Card(props) {
       <div className="card-image-container">
         <img 
           className="everything-card-img" 
-          src={props.imgUrl || "https://placehold.co/400x200?text=No+Image"} 
+          src={props.imgUrl || "https://placehold.co/400x200?text=Nexus+News"} 
           alt={props.title}
           onError={(e) => {
-            e.target.src = "https://placehold.co/400x200?text=No+Image";
+            e.target.src = "https://placehold.co/400x200?text=Nexus+News";
           }}
         />
       </div>
 
       <div className="card-content">
-        <span className="card-category">{category}</span>
+        <span className="card-category">{props.source || 'News'}</span>
 
         <h3 className="title">
           {props.title?.substring(0, 60)}

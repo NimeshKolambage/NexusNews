@@ -155,7 +155,7 @@ function TopHeadlines() {
       {/* Hero/Featured Section */}
       {!isLoading && featuredArticle && page === 1 && (
         <div className="container mx-auto px-5 pt-5">
-          <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || featuredArticle.image_url || 'https://placehold.co/1400x500?text=No+Image'})`}}>
+          <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || featuredArticle.image_url || 'https://placehold.co/1400x500?text=Nexus+News'})`}}>
             <div className="hero-overlay">
               <span className="hero-tag">Top Story</span>
               <h2 className="hero-title">
