@@ -4,8 +4,14 @@ const categories = ["Business", "Entertainment", "General", "Health", "Science",
 
 function Card(props) {
   const getStaticCategory = () => {
-    const titleLength = props.title ? props.title.length : 0;
-    const index = titleLength % categories.length;
+    // Use URL as stable identifier instead of title length (so category doesn't change when language changes)
+    const url = props.url || props.title || '';
+    let hash = 0;
+    for (let i = 0; i < url.length; i++) {
+      hash = ((hash << 5) - hash) + url.charCodeAt(i);
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    const index = Math.abs(hash) % categories.length;
     return categories[index];
   };
 
@@ -45,17 +51,7 @@ function Card(props) {
         </h3>
 
         <div className="info">
-          <div className="source-info">
-            <a
-              href={props.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link"
-              title={props.source}
-            >
-              {props.source?.substring(0, 50)}
-            </a>
-          </div>
+
           <div className="origin">
             {props.author && (
               <p className="origin-item">
