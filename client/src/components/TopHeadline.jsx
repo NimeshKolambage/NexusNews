@@ -146,7 +146,7 @@ function TopHeadlines() {
             Top stories in {params.category}
           </p>
         </div>
-      )}}
+      )}
 
       {/* Hero/Featured Section */}
       {!isLoading && featuredArticle && page === 1 && (
