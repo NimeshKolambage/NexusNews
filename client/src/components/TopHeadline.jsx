@@ -165,7 +165,20 @@ function TopHeadlines() {
           // Custom API format
           if (json.success) {
             setTotalResults(json.data.totalResults);
-            setData(json.data.articles);
+            
+            // Client-side filter: ensure only selected category is shown
+            let filteredArticles = json.data.articles;
+            if (params.category) {
+              filteredArticles = json.data.articles.filter(article => {
+                const articleCategory = (article.category || article.section || '').toLowerCase();
+                const selectedCategory = params.category.toLowerCase();
+                return articleCategory.includes(selectedCategory) || selectedCategory.includes(articleCategory);
+              });
+              console.log(`📌 Filtered ${json.data.articles.length} articles to ${filteredArticles.length} for "${params.category}"`);
+            }
+            
+            setTotalResults(filteredArticles.length);
+            setData(filteredArticles);
           } else {
             setError(json.message || "An error occurred fetching world news");
           }
@@ -203,9 +216,7 @@ function TopHeadlines() {
           <h1 style={{color: 'var(--heading)'}} className="text-4xl font-bold capitalize">
             {params.category}
           </h1>
-          <p style={{color: 'var(--txt)'}} className="text-sm opacity-70 mt-2">
-            Top stories in {params.category}
-          </p>
+          
         </div>
       )}
 
