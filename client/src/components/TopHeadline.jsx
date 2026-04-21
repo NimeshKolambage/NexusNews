@@ -47,6 +47,12 @@ function TopHeadlines() {
 
   let pageSize = 12;
 
+  // Reset page and featured index when category changes
+  useEffect(() => {
+    setPage(1);
+    setFeaturedIndex(0);
+  }, [params.category]);
+
   useEffect(() => {
     const fetchNews = async () => {
       setIsLoading(true);
@@ -88,7 +94,32 @@ function TopHeadlines() {
         if (newsRegion === 'srilanka') {
           // New Esena API v3 format - articles in news_data.data
           const esanaData = json.news_data?.data || [];
+          console.log("Esena API sample item:", esanaData[0]); // Debug: see all available fields
+          
           if (Array.isArray(esanaData) && esanaData.length > 0) {
+            // Helper function to extract category from various possible fields
+            const extractCategory = (item) => {
+              // Try different field names for category
+              if (item.category) return item.category;
+              if (item.section) return item.section;
+              if (item.category_name) return item.category_name;
+              if (item.news_type) return item.news_type;
+              if (item.slug) return item.slug.charAt(0).toUpperCase() + item.slug.slice(1);
+              if (item.category_id) {
+                const catMap = { 1: 'Politics', 2: 'Business', 3: 'Sports', 4: 'Entertainment', 5: 'Technology', 6: 'Health', 7: 'Science', 8: 'General' };
+                return catMap[item.category_id] || 'General';
+              }
+              // Fallback: categorize based on keywords in title
+              const titleLower = (item.titleEn || item.titleSi || '').toLowerCase();
+              if (titleLower.includes('sports') || titleLower.includes('cricket') || titleLower.includes('football')) return 'Sports';
+              if (titleLower.includes('business') || titleLower.includes('market') || titleLower.includes('economy')) return 'Business';
+              if (titleLower.includes('politics') || titleLower.includes('government') || titleLower.includes('parliament')) return 'Politics';
+              if (titleLower.includes('technology') || titleLower.includes('tech') || titleLower.includes('innovation')) return 'Technology';
+              if (titleLower.includes('health') || titleLower.includes('medical') || titleLower.includes('disease')) return 'Health';
+              if (titleLower.includes('entertainment') || titleLower.includes('movie') || titleLower.includes('celebrity')) return 'Entertainment';
+              return 'General';
+            };
+            
             // Transform Esena API format to our unified format
             const transformedArticles = esanaData.map(item => {
               // Get description from contentSi array
@@ -113,7 +144,7 @@ function TopHeadlines() {
                 publishedAt: item.published,
                 link: item.share_url,
                 url: item.share_url,
-                category: item.category || item.section || 'General',
+                category: extractCategory(item),
                 source_id: 'Helakuru Esana',
                 source: { name: 'Helakuru Esana' }
               };
