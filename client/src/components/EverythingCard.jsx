@@ -4,6 +4,11 @@ const categories = ["Business", "Entertainment", "General", "Health", "Science",
 
 function Card(props) {
   const getStaticCategory = () => {
+    // For Sri Lanka news, show 'Srilanka News' instead of individual category
+    if (props.isSriLankaNews) {
+      return 'Srilanka News';
+    }
+    
     // Use category prop if available (from API)
     if (props.category) {
       return props.category;
