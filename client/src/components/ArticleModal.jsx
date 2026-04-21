@@ -45,7 +45,7 @@ function ArticleModal({ article, onClose }) {
   const publishDate = article.publishedAt || article.pubDate;
   const author = article.author || (article.creator ? article.creator[0] : null);
   const sourceName = article.source?.name || article.source_id || 'News';
-  const articleUrl = article.url || article.link;
+ 
 
   return (
     <div className="modal-backdrop" onClick={handleBackdropClick}>
@@ -110,18 +110,6 @@ function ArticleModal({ article, onClose }) {
               <p>{content}</p>
             </div>
           )}
-
-          {/* Read Full Article Button */}
-          <div className="modal-actions">
-            <a 
-              href={articleUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="modal-link-btn"
-            >
-              Read Full Article →
-            </a>
-          </div>
         </div>
       </div>
     </div>
