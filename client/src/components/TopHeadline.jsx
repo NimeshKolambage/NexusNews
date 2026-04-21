@@ -96,8 +96,8 @@ function TopHeadlines() {
                 title: language === 'en' ? (item.titleEn || item.titleSi || '') : (item.titleSi || ''),
                 description: description,
                 content: description,
-                image_url: item.cover || item.thumb || 'https://placehold.co/400x300?text=No+Image',
-                urlToImage: item.cover || item.thumb || 'https://placehold.co/400x300?text=No+Image',
+                image_url: item.cover || item.thumb || 'https://placehold.co/400x300?text=Nexus+News',
+                urlToImage: item.cover || item.thumb || 'https://placehold.co/400x300?text=Nexus+News',
                 pubDate: item.published,
                 publishedAt: item.published,
                 link: item.share_url,
@@ -146,7 +146,7 @@ function TopHeadlines() {
             Top stories in {params.category}
           </p>
         </div>
-      )}
+      )}}
 
       {/* Hero/Featured Section */}
       {!isLoading && featuredArticle && page === 1 && (
