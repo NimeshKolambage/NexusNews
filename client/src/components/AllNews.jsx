@@ -92,16 +92,17 @@ function AllNews() {
       setIsLoading(true);
       setError(null);
       try {
-        // Always fetch fresh data (don't use cache for page 1)
+        // Only use cache for Sri Lanka news (client-side pagination)
+        // For world news, always fetch from API (server-side pagination)
         const cacheKey = newsRegion === 'srilanka' ? 'srilanka' : 'world';
         
-        // Use cache for pages 2+ (faster loading)
-        if (page > 1 && isCacheValid(cacheKey)) {
+        // Only apply cache logic for Sri Lanka news
+        if (newsRegion === 'srilanka' && isCacheValid(cacheKey)) {
           const cachedData = getCache(cacheKey);
           if (cachedData) {
             console.log(`✅ Using cached ${cacheKey} news`);
             
-            // Handle paginated data
+            // Handle paginated data for Sri Lanka
             if (Array.isArray(cachedData)) {
               // Array of articles - implement pagination
               const startIndex = (page - 1) * pageSize;
