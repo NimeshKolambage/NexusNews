@@ -95,13 +95,27 @@ function AllNews() {
         // Always fetch fresh data (don't use cache for page 1)
         const cacheKey = newsRegion === 'srilanka' ? 'srilanka' : 'world';
         
-        // Skip cache for page 1 - always get fresh data
+        // Use cache for pages 2+ (faster loading)
         if (page > 1 && isCacheValid(cacheKey)) {
           const cachedData = getCache(cacheKey);
           if (cachedData) {
             console.log(`✅ Using cached ${cacheKey} news`);
-            setData(cachedData.articles || cachedData);
-            setTotalResults((cachedData.totalResults || cachedData.length));
+            
+            // Handle paginated data
+            if (Array.isArray(cachedData)) {
+              // Array of articles - implement pagination
+              const startIndex = (page - 1) * pageSize;
+              const endIndex = startIndex + pageSize;
+              setData(cachedData.slice(startIndex, endIndex));
+              setTotalResults(cachedData.length);
+            } else {
+              // Object with articles array
+              const articles = cachedData.articles || [];
+              const startIndex = (page - 1) * pageSize;
+              const endIndex = startIndex + pageSize;
+              setData(articles.slice(startIndex, endIndex));
+              setTotalResults(cachedData.totalResults || articles.length);
+            }
             setFeaturedIndex(0);
             setIsLoading(false);
             return;
@@ -186,12 +200,16 @@ function AllNews() {
               };
             });
             setTotalResults(transformedArticles.length);
-            setData(transformedArticles);
+            
+            // Implement client-side pagination for Sri Lanka news
+            const startIndex = (page - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            setData(transformedArticles.slice(startIndex, endIndex));
             setFeaturedIndex(0);
-            // Cache the data
+            // Cache all articles
             setCache('srilanka', transformedArticles);
           } else {
-            setError("No Sri Lanka news found. Try again later.");
+            setError("No Sri Lanka news found. Try again later");
           }
         } else {
           // Custom API format

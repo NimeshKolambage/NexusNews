@@ -107,7 +107,11 @@ function TopHeadlines() {
               };
             });
             setTotalResults(transformedArticles.length);
-            setData(transformedArticles);
+            
+            // Implement client-side pagination for Sri Lanka news
+            const startIndex = (page - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            setData(transformedArticles.slice(startIndex, endIndex));
           } else {
             setError("No Sri Lanka news found. Try again later.");
           }
