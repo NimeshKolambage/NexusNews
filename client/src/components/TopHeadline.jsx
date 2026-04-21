@@ -45,7 +45,7 @@ function TopHeadlines() {
     setFeaturedIndex((prev) => (prev === featuredCount - 1 ? 0 : prev + 1));
   }
 
-  let pageSize = 12;
+  let pageSize = 24;  // Changed from 12 to 24 to show more articles
 
   // Reset page and featured index when category changes
   useEffect(() => {

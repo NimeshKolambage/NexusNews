@@ -35,7 +35,7 @@ export default function ErrorOverlay({
     const timer = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
-          handleAutoRetry();
+         
           return retryInterval;
         }
         return prev - 1;
@@ -49,7 +49,7 @@ export default function ErrorOverlay({
   useEffect(() => {
     const handleOnline = () => {
       console.log('✅ Back online!');
-      handleManualRetry();
+     
     };
 
     const handleOffline = () => {
@@ -66,18 +66,6 @@ export default function ErrorOverlay({
     };
   }, []);
 
-  const handleAutoRetry = async () => {
-    setRetryCount(prev => prev + 1);
-    console.log(`🔄 Auto-retry attempt #${retryCount + 1}...`);
-    
-    try {
-      await onRetry?.();
-      // If success, parent will set isVisible to false
-    } catch (error) {
-      console.error('Retry failed:', error);
-      // Keep retrying
-    }
-  };
 
   const handleManualRetry = async () => {
     setRetryCount(prev => prev + 1);
