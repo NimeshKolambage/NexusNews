@@ -362,6 +362,7 @@ function AllNews() {
                   author={author}
                   source={source}
                   category={category}
+                  isSriLankaNews={newsRegion === 'srilanka'}
                 />
               </div>
             );

@@ -320,6 +320,7 @@ function CountryNews() {
                   author={element.author}
                   source={element.source.name}
                   category={element.category}
+                  isSriLankaNews={params.iso === 'lk'}
                 />
               </div>
             ))}

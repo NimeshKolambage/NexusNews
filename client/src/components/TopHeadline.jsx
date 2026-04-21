@@ -51,6 +51,7 @@ function TopHeadlines() {
   useEffect(() => {
     setPage(1);
     setFeaturedIndex(0);
+    setData([]);
   }, [params.category]);
 
   useEffect(() => {
@@ -288,6 +289,7 @@ function TopHeadlines() {
                     author={author}
                     source={source}
                     category={category}
+                    isSriLankaNews={newsRegion === 'srilanka'}
                   />
                 </div>
               );
