@@ -164,17 +164,18 @@ function TopHeadlines() {
         } else {
           // Custom API format
           if (json.success) {
-            setTotalResults(json.data.totalResults);
-            
-            // Client-side filter: ensure only selected category is shown
+            // Client-side filter: ensure ONLY selected category is shown (stronger filter)
             let filteredArticles = json.data.articles;
             if (params.category) {
+              const selectedCat = params.category.toLowerCase().trim();
               filteredArticles = json.data.articles.filter(article => {
-                const articleCategory = (article.category || article.section || '').toLowerCase();
-                const selectedCategory = params.category.toLowerCase();
-                return articleCategory.includes(selectedCategory) || selectedCategory.includes(articleCategory);
+                const articleCat = (article.category || '').toLowerCase().trim();
+                // Exact match or partial match
+                return articleCat === selectedCat || articleCat.includes(selectedCat);
               });
-              console.log(`📌 Filtered ${json.data.articles.length} articles to ${filteredArticles.length} for "${params.category}"`);
+              console.log(`✅ Showing ${filteredArticles.length} articles for category: "${params.category}"`);
+            } else {
+              console.log(`✅ Showing all ${filteredArticles.length} articles (no category filter)`);
             }
             
             setTotalResults(filteredArticles.length);
