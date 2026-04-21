@@ -13,6 +13,7 @@ function TopHeadlines() {
   const [totalResults, setTotalResults] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [featuredIndex, setFeaturedIndex] = useState(0);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -32,6 +33,16 @@ function TopHeadlines() {
 
   function handleNext() {
     setPage(page + 1);
+  }
+
+  function handleFeaturedPrev() {
+    const featuredCount = Math.min(5, data.length);
+    setFeaturedIndex((prev) => (prev === 0 ? featuredCount - 1 : prev - 1));
+  }
+
+  function handleFeaturedNext() {
+    const featuredCount = Math.min(5, data.length);
+    setFeaturedIndex((prev) => (prev === featuredCount - 1 ? 0 : prev + 1));
   }
 
   let pageSize = 12;
@@ -102,6 +113,7 @@ function TopHeadlines() {
                 publishedAt: item.published,
                 link: item.share_url,
                 url: item.share_url,
+                category: item.category || item.section || 'General',
                 source_id: 'Helakuru Esana',
                 source: { name: 'Helakuru Esana' }
               };
@@ -134,7 +146,18 @@ function TopHeadlines() {
     fetchNews();
   }, [page, params.category, newsRegion, language]);
 
-  const featuredArticle = data && data.length > 0 ? data[0] : null;
+  // Auto-rotate featured articles
+  useEffect(() => {
+    if (!isLoading && data.length > 0) {
+      const interval = setInterval(() => {
+        handleFeaturedNext();
+      }, 6000); // Change featured article every 6 seconds
+      return () => clearInterval(interval);
+    }
+  }, [isLoading, data.length]);
+
+  const featuredArticle = data && data.length > 0 ? data[featuredIndex] : null;
+  const featuredCount = Math.min(5, data.length);
 
   return (
     <main style={{backgroundColor: 'var(--background)'}}>
@@ -152,21 +175,58 @@ function TopHeadlines() {
         </div>
       )}
 
-      {/* Hero/Featured Section */}
+      {/* Hero/Featured Section with Carousel */}
       {!isLoading && featuredArticle && page === 1 && (
-        <div className="container mx-auto px-5 pt-5">
-          <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || featuredArticle.image_url || 'https://placehold.co/1400x500?text=Nexus+News'})`}}>
-            <div className="hero-overlay">
-              <span className="hero-tag">Top Story</span>
-              <h2 className="hero-title">
-                {featuredArticle.title?.substring(0, 80)}
-                {featuredArticle.title?.length > 80 ? "..." : ""}
-              </h2>
-              <div className="hero-meta">
-                <span>{featuredArticle.source?.name || featuredArticle.source_id || "News"}</span>
-                <span>{new Date(featuredArticle.publishedAt || featuredArticle.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+        <div className="container mx-auto px-5 pt-10 pb-5">
+          <div className="hero-section-wrapper">
+            <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || featuredArticle.image_url || 'https://placehold.co/1400x500?text=Nexus+News'})`}}>
+              <div className="hero-overlay">
+                <span className="hero-tag">Top Story</span>
+                <h2 className="hero-title">
+                  {featuredArticle.title?.substring(0, 80)}
+                  {featuredArticle.title?.length > 80 ? "..." : ""}
+                </h2>
+                <div className="hero-meta">
+                  <span>{featuredArticle.source?.name || featuredArticle.source_id || "News"}</span>
+                  <span>{new Date(featuredArticle.publishedAt || featuredArticle.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                </div>
               </div>
             </div>
+
+            {/* Featured Navigation Controls */}
+            {featuredCount > 1 && (
+              <>
+                {/* Navigation Arrows */}
+                <div className="hero-nav">
+                  <button 
+                    className="hero-nav-btn hero-nav-prev" 
+                    onClick={handleFeaturedPrev}
+                    aria-label="Previous featured article"
+                  >
+                    ←
+                  </button>
+                  <button 
+                    className="hero-nav-btn hero-nav-next" 
+                    onClick={handleFeaturedNext}
+                    aria-label="Next featured article"
+                  >
+                    →
+                  </button>
+                </div>
+
+                {/* Featured Indicators (Dots) */}
+                <div className="hero-indicators">
+                  {Array.from({ length: featuredCount }).map((_, index) => (
+                    <button
+                      key={index}
+                      className={`hero-indicator ${index === featuredIndex ? 'active' : ''}`}
+                      onClick={() => setFeaturedIndex(index)}
+                      aria-label={`Go to featured article ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -184,6 +244,7 @@ function TopHeadlines() {
               const url = element.url || element.link;
               const author = element.author || (element.creator ? element.creator[0] : 'Unknown');
               const source = element.source?.name || element.source_id || 'News';
+              const category = element.category;
 
               return (
                 <div key={index} onClick={() => handleCardClick(element)}>
@@ -195,6 +256,7 @@ function TopHeadlines() {
                     url={url}
                     author={author}
                     source={source}
+                    category={category}
                   />
                 </div>
               );

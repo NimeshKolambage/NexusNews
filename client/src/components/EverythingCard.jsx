@@ -4,12 +4,17 @@ const categories = ["Business", "Entertainment", "General", "Health", "Science",
 
 function Card(props) {
   const getStaticCategory = () => {
-    // Use URL as stable identifier instead of title length (so category doesn't change when language changes)
+    // Use category prop if available (from API)
+    if (props.category) {
+      return props.category;
+    }
+    
+    // Fallback: Use URL as stable identifier for hash-based category
     const url = props.url || props.title || '';
     let hash = 0;
     for (let i = 0; i < url.length; i++) {
       hash = ((hash << 5) - hash) + url.charCodeAt(i);
-      hash = hash & hash; // Convert to 32-bit integer
+      hash = hash & hash;
     }
     const index = Math.abs(hash) % categories.length;
     return categories[index];

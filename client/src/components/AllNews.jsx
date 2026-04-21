@@ -196,6 +196,7 @@ function AllNews() {
                 publishedAt: item.published,
                 link: item.share_url,
                 url: item.share_url,
+                category: item.category || item.section || 'General',
                 source_id: 'Helakuru Esana',
                 source: { name: 'Helakuru Esana' }
               };
@@ -261,7 +262,7 @@ function AllNews() {
           <div className="hero-section-wrapper">
             <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || featuredArticle.image_url || 'https://placehold.co/1400x500?text=Nexus+News'})`}}>
               <div className="hero-overlay">
-                <span className="hero-tag">Daily News</span>
+                <span className="hero-tag">Top Stroy</span>
                 <h2 className="hero-title">
                   {featuredArticle.title?.substring(0, 80)}
                   {featuredArticle.title?.length > 80 ? "..." : ""}
@@ -323,6 +324,7 @@ function AllNews() {
             const url = element.url || element.link;
             const author = element.author || (element.creator ? element.creator[0] : 'Unknown');
             const source = element.source?.name || element.source_id || 'News';
+            const category = element.category;
 
             return (
               <div key={index} onClick={() => handleCardClick(element)}>
@@ -334,6 +336,7 @@ function AllNews() {
                   url={url}
                   author={author}
                   source={source}
+                  category={category}
                 />
               </div>
             );

@@ -174,6 +174,7 @@ function CountryNews() {
                 publishedAt: item.published,
                 link: item.share_url,
                 url: item.share_url,
+                category: item.category || item.section || 'General',
                 source_id: 'Helakuru Esana',
                 source: { name: 'Helakuru Esana' }
               };
@@ -293,6 +294,7 @@ function CountryNews() {
                   url={element.url}
                   author={element.author}
                   source={element.source.name}
+                  category={element.category}
                 />
               </div>
             ))}
