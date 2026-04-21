@@ -83,18 +83,30 @@ function CountryNews() {
       setIsLoading(true);
       setError(null);
       try {
-        // Check cache first (only on page 1)
-        if (page === 1) {
-          const cacheKey = params.iso;
-          if (isCacheValid(cacheKey)) {
-            const cachedData = getCache(cacheKey);
-            if (cachedData) {
-              console.log(`✅ Using cached ${cacheKey} news`);
-              setData(cachedData.articles || cachedData);
-              setTotalResults(cachedData.totalResults || cachedData.length);
-              setIsLoading(false);
-              return;
+        // Check cache first (for all pages)
+        const cacheKey = params.iso;
+        if (isCacheValid(cacheKey)) {
+          const cachedData = getCache(cacheKey);
+          if (cachedData) {
+            console.log(`✅ Using cached ${cacheKey} news`);
+            
+            // Handle paginated data
+            if (Array.isArray(cachedData)) {
+              // Array of articles - implement pagination
+              const startIndex = (page - 1) * pageSize;
+              const endIndex = startIndex + pageSize;
+              setData(cachedData.slice(startIndex, endIndex));
+              setTotalResults(cachedData.length);
+            } else {
+              // Object with articles array
+              const articles = cachedData.articles || [];
+              const startIndex = (page - 1) * pageSize;
+              const endIndex = startIndex + pageSize;
+              setData(articles.slice(startIndex, endIndex));
+              setTotalResults(cachedData.totalResults || articles.length);
             }
+            setIsLoading(false);
+            return;
           }
         }
 
@@ -166,9 +178,15 @@ function CountryNews() {
                 source: { name: 'Helakuru Esana' }
               };
             });
+            
+            // Implement client-side pagination
+            const startIndex = (page - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const paginatedArticles = transformedArticles.slice(startIndex, endIndex);
+            
             setTotalResults(transformedArticles.length);
-            setData(transformedArticles);
-            // Save to cache for future visits
+            setData(paginatedArticles);
+            // Save all articles to cache
             setCache(params.iso, transformedArticles);
           } else {
             setError("No Sri Lanka news available right now");
@@ -245,7 +263,7 @@ function CountryNews() {
       {/* Hero/Featured Section */}
       {!isLoading && featuredArticle && page === 1 && (
         <div className="container mx-auto px-5 pt-5">
-          <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || 'https://placehold.co/1400x500?text=No+Image'})`}}>
+          <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || 'https://placehold.co/1400x500?text=Nexus+News'})`}}>
             <div className="hero-overlay">
               <span className="hero-tag">Featured</span>
               <h2 className="hero-title">
