@@ -92,9 +92,11 @@ function AllNews() {
       setIsLoading(true);
       setError(null);
       try {
-        // Check cache only on first page
+        // Always fetch fresh data (don't use cache for page 1)
         const cacheKey = newsRegion === 'srilanka' ? 'srilanka' : 'world';
-        if (page === 1 && isCacheValid(cacheKey)) {
+        
+        // Skip cache for page 1 - always get fresh data
+        if (page > 1 && isCacheValid(cacheKey)) {
           const cachedData = getCache(cacheKey);
           if (cachedData) {
             console.log(`✅ Using cached ${cacheKey} news`);
