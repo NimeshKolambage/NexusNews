@@ -96,8 +96,8 @@ function TopHeadlines() {
                 title: language === 'en' ? (item.titleEn || item.titleSi || '') : (item.titleSi || ''),
                 description: description,
                 content: description,
-                image_url: item.cover || item.thumb || 'https://via.placeholder.com/400x300',
-                urlToImage: item.cover || item.thumb || 'https://via.placeholder.com/400x300',
+                image_url: item.cover || item.thumb || 'https://placehold.co/400x300?text=No+Image',
+                urlToImage: item.cover || item.thumb || 'https://placehold.co/400x300?text=No+Image',
                 pubDate: item.published,
                 publishedAt: item.published,
                 link: item.share_url,
@@ -151,7 +151,7 @@ function TopHeadlines() {
       {/* Hero/Featured Section */}
       {!isLoading && featuredArticle && page === 1 && (
         <div className="container mx-auto px-5 pt-5">
-          <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || featuredArticle.image_url || 'https://via.placeholder.com/1400x500'})`}}>
+          <div className="hero-section" style={{backgroundImage: `url(${featuredArticle.urlToImage || featuredArticle.image_url || 'https://placehold.co/1400x500?text=No+Image'})`}}>
             <div className="hero-overlay">
               <span className="hero-tag">Top Story</span>
               <h2 className="hero-title">
