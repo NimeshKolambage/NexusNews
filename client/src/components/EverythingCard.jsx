@@ -46,7 +46,6 @@ function Card(props) {
 
         <div className="info">
           <div className="source-info">
-            <span className="font-semibold text-xs" style={{color: 'var(--txt)'}}>Source:</span>
             <a
               href={props.url}
               target="_blank"
