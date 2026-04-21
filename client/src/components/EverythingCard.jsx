@@ -43,7 +43,7 @@ function Card(props) {
       </div>
 
       <div className="card-content">
-        <span className="card-category">{props.source || 'News'}</span>
+        <span className="card-category">{category}</span>
 
         <h3 className="title">
           {props.title?.substring(0, 60)}
