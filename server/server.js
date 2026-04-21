@@ -103,13 +103,20 @@ app.get("/top-headlines", async (req,res)=>{
     axios.get(url, { timeout: 10000 })
       .then(response => {
         console.log("✅ [TOP-HEADLINES] NewsAPI Success! Articles:", response.data.articles.length);
+        console.log("📌 [TOP-HEADLINES] Total Results from API:", response.data.totalResults);
         if(response.data.totalResults > 0) {
+            // Add category to each article so client can filter properly
+            const articlesWithCategory = response.data.articles.map(article => ({
+              ...article,
+              category: category  // Add the category field to each article
+            }));
+            
             res.json({
                 status:200,
                 success: true,
                 message: "News fetched successfully",
-                data:response.data,
-                articles: response.data.articles,
+                data: { ...response.data, articles: articlesWithCategory },
+                articles: articlesWithCategory,
                 source: 'NewsAPI',
                 category: category
             });
@@ -126,6 +133,20 @@ app.get("/top-headlines", async (req,res)=>{
         console.log("🔄 [TOP-HEADLINES] Attempting Backup API (SerpAPI)...\n");
         
         try {
+          if (!BACKUP_API_KEY) {
+            console.log("⚠️ [BACKUP] No SerpAPI key configured");
+            res.status(200).json({
+              status: 200,
+              success: false,
+              message: "NewsAPI returned no results for this category",
+              data: { articles: [] },
+              articles: [],
+              source: 'None',
+              category: category
+            });
+            return;
+          }
+          
           const backupUrl = `https://serpapi.com/search?engine=google_news&q=${category}+news&api_key=${BACKUP_API_KEY}&num=${pageSize}`;
           console.log("📡 Backup URL:", backupUrl);
           
@@ -135,17 +156,22 @@ app.get("/top-headlines", async (req,res)=>{
           
           if (backupResponse.data && backupResponse.data.news && backupResponse.data.news.length > 0) {
             const convertedData = convertSerpApiToNewsApi(backupResponse.data);
-            console.log("✅ [BACKUP] Success! Articles found:", convertedData.articles.length);
+            // Add category to each article for filtering
+            const articlesWithCategory = convertedData.articles.map(article => ({
+              ...article,
+              category: category
+            }));
+            console.log("✅ [BACKUP] Success! Articles found:", articlesWithCategory.length);
             
             res.json({
               status: 200,
               success: true,
               message: "News fetched from backup API",
-              data: convertedData,
-              articles: convertedData.articles,
+              data: { ...convertedData, articles: articlesWithCategory },
+              articles: articlesWithCategory,
               source: 'SerpAPI (Backup)',
               category: category,
-              articlesCount: convertedData.articles.length
+              articlesCount: articlesWithCategory.length
             });
           } else {
             throw new Error('No articles in backup response');
