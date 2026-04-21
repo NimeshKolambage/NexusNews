@@ -34,10 +34,10 @@ function Card(props) {
       <div className="card-image-container">
         <img 
           className="everything-card-img" 
-          src={props.imgUrl || "https://via.placeholder.com/400x200?text=No+Image"} 
+          src={props.imgUrl || "https://placehold.co/400x200?text=No+Image"} 
           alt={props.title}
           onError={(e) => {
-            e.target.src = "https://via.placeholder.com/400x200?text=No+Image";
+            e.target.src = "https://placehold.co/400x200?text=No+Image";
           }}
         />
       </div>
