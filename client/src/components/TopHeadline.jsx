@@ -52,6 +52,7 @@ function TopHeadlines() {
     setPage(1);
     setFeaturedIndex(0);
     setData([]);
+    setIsLoading(true);
   }, [params.category]);
 
   useEffect(() => {
@@ -67,8 +68,9 @@ function TopHeadlines() {
           url = `https://esena-news-api-v3.vercel.app/`;
         } else {
           // World news using local backend (with backup API fallback)
+          // Always fetch fresh data for category to avoid mixing
           const categoryParam = params.category ? `&category=${params.category}` : "";
-          url = `https://nexusnews-production.up.railway.app/top-headlines?language=en${categoryParam}&page=${page}&pageSize=${pageSize}`;
+          url = `https://nexusnews-production.up.railway.app/top-headlines?language=en${categoryParam}&page=1&pageSize=${pageSize}`;
         }
 
         console.log("Fetching from:", url); // Debug log
