@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a3fa23b4-52c7-46df-893e-72311104d442" width="400" alt="Screenshot 1" />
+  <img src="https://github.com/user-attachments/assets/d5b72064-01c7-48a0-813f-9b62c57d7441" width="400" alt="Screenshot 2" />
+</p>
+
 # 📰 NexusNews
 
 A modern, feature-rich news aggregation platform that delivers real-time news from around the world with personalized regional content and language support.
