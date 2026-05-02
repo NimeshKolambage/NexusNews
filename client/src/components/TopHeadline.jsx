@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import EverythingCard from './EverythingCard'
 import Loader from "./Loader";
 import ArticleModal from './ArticleModal';
+import AdComponent from './AdComponent';
 import { useNews } from '../context/NewsContext';
 
 function TopHeadlines() {
@@ -277,6 +278,9 @@ function TopHeadlines() {
         </div>
       )}
 
+      {/* Advertisement */}
+      {!isLoading && <AdComponent />}
+
       {/* News Cards Grid */}
       {!isLoading && data.length > 0 ? (
         <>
@@ -309,6 +313,9 @@ function TopHeadlines() {
               );
             })}
           </div>
+
+          {/* Advertisement */}
+          <AdComponent />
 
           {/* Pagination */}
           <div className="pagination">

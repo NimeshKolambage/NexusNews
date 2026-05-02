@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import EverythingCard from './EverythingCard';
 import Loader from './Loader';
 import ArticleModal from './ArticleModal';
+import AdComponent from './AdComponent';
 import { useNews } from '../context/NewsContext';
 
 function AllNews() {
@@ -337,6 +338,9 @@ function AllNews() {
         </div>
       )}
 
+      {/* Advertisement */}
+      {!isLoading && <AdComponent />}
+
       {/* News Cards Grid */}
       {!isLoading && (
         <div className='cards'>
@@ -371,6 +375,9 @@ function AllNews() {
       )}
 
       {isLoading && <Loader />}
+
+      {/* Advertisement */}
+      {!isLoading && data.length > 0 && <AdComponent />}
 
       {/* Pagination */}
       {!isLoading && data.length > 0 && (
