@@ -500,6 +500,12 @@ app.post("/api/chat", async (req, res) => {
     }
 });
 
+// Serve ads.txt from client/public (must be before PORT configuration)
+const path = require('path');
+app.get('/ads.txt', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/public/ads.txt'));
+});
+
 // Port configuration for Railway
 const PORT = process.env.PORT || 3000;
 
